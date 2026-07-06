@@ -1,6 +1,6 @@
 # VibeCode Editor
 
-An AI-powered web IDE built in the browser — no local setup required. Write, run, and get intelligent code suggestions entirely in-browser using Monaco Editor, WebContainers, and local AI models via Ollama.
+An AI-powered web IDE built in the browser — no local setup required. Write, run, and get intelligent code suggestions entirely in-browser using Monaco Editor, WebContainers, and Groq-powered AI.
 
 ## What it does (planned)
 
@@ -13,22 +13,22 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
   - WebContainer — runs your app entirely in the browser
   - Integrated terminal (xterm.js) — run `npm install`, `npm run dev`, etc.
   - Live preview iframe
-  - AI inline autocomplete powered by Ollama (local models)
-  - AI chat assistant sidebar
+  - AI inline autocomplete + chat assistant powered by Groq
 - **Light / dark mode**
 
 ## Current state
 
-**Phase 1 — Auth & DB schema complete.**
+**Phases 1 & 2 complete.**
 
 - Next.js 16 + React 19 + TypeScript project initialized
 - shadcn/ui component library installed (55 components, radix-nova style)
 - Tailwind CSS v4 configured
-- MongoDB + Prisma ORM wired up — all collections live on Atlas (`User`, `Account`, `Session`, `VerificationToken`, `Project`, `Template`)
+- MongoDB + Prisma ORM 5 wired up — all collections live on Atlas (`User`, `Account`, `Session`, `VerificationToken`, `Project`, `Template`)
 - NextAuth.js v5 configured with Google + GitHub OAuth providers
-- Protected routes via middleware (`/dashboard`, `/playground`)
+- Protected routes via `proxy.ts` (`/dashboard`, `/playground`)
 - Cross-Origin-Isolation headers set (required for WebContainers)
-- `react-resizable-panels`, `cmdk`, `recharts`, `next-themes`, `sonner` installed
+- Landing page with hero, feature grid, CTA banner
+- Dark mode (default) + light mode toggle via `next-themes`
 
 ## Tech stack
 
@@ -38,18 +38,18 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 | Language | TypeScript 5 |
 | UI | React 19, shadcn/ui, Tailwind CSS v4 |
 | Icons | Lucide React |
-| Database | MongoDB via Prisma ORM |
+| Database | MongoDB via Prisma ORM 5 |
+| Auth | NextAuth.js v5 — Google + GitHub OAuth |
+| Theme | next-themes |
 | Editor | Monaco Editor (planned) |
 | Runtime | WebContainers API (planned) |
 | Terminal | xterm.js (planned) |
-| AI (prod) | Groq API — Llama 3 / DeepSeek Coder (planned) |
-| AI (dev) | Ollama — local models, optional (planned) |
-| Auth | NextAuth.js — Google + GitHub (planned) |
+| AI | Groq API — Llama 3 / DeepSeek (planned) |
 
 ## Implementation roadmap
 
-- [x] Phase 1 — Auth & DB schema (NextAuth, expanded Prisma models)
-- [ ] Phase 2 — Landing page + dark mode
+- [x] Phase 1 — Auth & DB schema (NextAuth v5, Prisma models, protected routes)
+- [x] Phase 2 — Landing page + dark mode
 - [ ] Phase 3 — Dashboard (project table, CRUD, favorites)
 - [ ] Phase 4 — Template system (seed data, picker modal, multi-step form)
 - [ ] Phase 5 — Playground layout (resizable 3-panel layout)
@@ -57,37 +57,44 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 - [ ] Phase 7 — Monaco editor + key bindings
 - [ ] Phase 8 — WebContainer integration + live preview
 - [ ] Phase 9 — Terminal (xterm.js + WebContainer shell)
-- [ ] Phase 10 — AI features (Ollama autocomplete + chat assistant)
+- [ ] Phase 10 — AI features (Groq autocomplete + chat assistant)
+- [ ] Phase 11 — Deployment (Render + MongoDB Atlas)
 
 ## Getting started
 
 ```bash
 npm install
+npx prisma generate
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
 Copy `.env.local.example` to `.env.local` and fill in:
+
 ```
 DATABASE_URL=mongodb+srv://...
-NEXTAUTH_SECRET=...
+NEXTAUTH_SECRET=...           # openssl rand -base64 32
 NEXTAUTH_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 GITHUB_CLIENT_ID=...
 GITHUB_CLIENT_SECRET=...
-GROQ_API_KEY=gsk_...
+GROQ_API_KEY=gsk_...          # free at console.groq.com
 ```
 
-> In development, AI falls back to Ollama at `localhost:11434` if running — but it's optional. In production, Groq handles everything automatically and users get AI with zero setup.
+After filling in `DATABASE_URL`, push the schema:
+
+```bash
+npx prisma db push
+```
 
 ## Deployment
 
-Deployed on **[Render](https://render.com)** with **MongoDB Atlas** as the database.
+Target: **Render** (web service) + **MongoDB Atlas** (free M0 cluster).
 
 - Build command: `npm install && npx prisma generate && npm run build`
 - Start command: `npm run start`
-- All environment variables set in Render dashboard
+- Add all environment variables in the Render dashboard
 
 > **Note:** WebContainers require `Cross-Origin-Isolation` headers (`COOP: same-origin` + `COEP: require-corp`), already configured in `next.config.ts`.
