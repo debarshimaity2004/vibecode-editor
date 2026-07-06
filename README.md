@@ -19,12 +19,15 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 
 ## Current state
 
-> Early scaffolding only — no features implemented yet.
+**Phase 1 — Auth & DB schema complete.**
 
 - Next.js 16 + React 19 + TypeScript project initialized
 - shadcn/ui component library installed (55 components, radix-nova style)
 - Tailwind CSS v4 configured
-- MongoDB + Prisma ORM wired up (basic `User` model only)
+- MongoDB + Prisma ORM wired up — all collections live on Atlas (`User`, `Account`, `Session`, `VerificationToken`, `Project`, `Template`)
+- NextAuth.js v5 configured with Google + GitHub OAuth providers
+- Protected routes via middleware (`/dashboard`, `/playground`)
+- Cross-Origin-Isolation headers set (required for WebContainers)
 - `react-resizable-panels`, `cmdk`, `recharts`, `next-themes`, `sonner` installed
 
 ## Tech stack
@@ -45,7 +48,7 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 
 ## Implementation roadmap
 
-- [ ] Phase 1 — Auth & DB schema (NextAuth, expanded Prisma models)
+- [x] Phase 1 — Auth & DB schema (NextAuth, expanded Prisma models)
 - [ ] Phase 2 — Landing page + dark mode
 - [ ] Phase 3 — Dashboard (project table, CRUD, favorites)
 - [ ] Phase 4 — Template system (seed data, picker modal, multi-step form)
@@ -65,7 +68,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-Create a `.env` file with:
+Copy `.env.local.example` to `.env.local` and fill in:
 ```
 DATABASE_URL=mongodb+srv://...
 NEXTAUTH_SECRET=...
