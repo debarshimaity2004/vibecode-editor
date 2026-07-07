@@ -18,17 +18,20 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 
 ## Current state
 
-**Phases 1 & 2 complete.**
+**Phases 1–3 complete.**
 
 - Next.js 16 + React 19 + TypeScript project initialized
 - shadcn/ui component library installed (55 components, radix-nova style)
 - Tailwind CSS v4 configured
 - MongoDB + Prisma ORM 5 wired up — all collections live on Atlas (`User`, `Account`, `Session`, `VerificationToken`, `Project`, `Template`)
-- NextAuth.js v5 configured with Google + GitHub OAuth providers
+- NextAuth.js v5 with Google + GitHub OAuth — sign-in dialog on landing page, JWT session strategy
 - Protected routes via `proxy.ts` (`/dashboard`, `/playground`)
 - Cross-Origin-Isolation headers set (required for WebContainers)
 - Landing page with hero, feature grid, CTA banner
 - Dark mode (default) + light mode toggle via `next-themes`
+- Dashboard with projects table, empty state, user avatar dropdown
+- Full project CRUD — create, rename, duplicate, favorite, delete (all scoped to the signed-in user)
+- Per-row actions menu with rename dialog and delete confirmation
 
 ## Tech stack
 
@@ -50,7 +53,7 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 
 - [x] Phase 1 — Auth & DB schema (NextAuth v5, Prisma models, protected routes)
 - [x] Phase 2 — Landing page + dark mode
-- [ ] Phase 3 — Dashboard (project table, CRUD, favorites)
+- [x] Phase 3 — Dashboard (project table, CRUD, favorites)
 - [ ] Phase 4 — Template system (seed data, picker modal, multi-step form)
 - [ ] Phase 5 — Playground layout (resizable 3-panel layout)
 - [ ] Phase 6 — File explorer
