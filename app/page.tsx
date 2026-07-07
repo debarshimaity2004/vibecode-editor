@@ -1,9 +1,8 @@
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { SignInButton } from "@/components/landing-ctas"
 import {
-  ArrowRight,
   Code2,
   Terminal,
   Sparkles,
@@ -23,9 +22,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/api/auth/signin">Sign In</Link>
-            </Button>
+            <SignInButton variant="outline" size="sm" />
           </div>
         </div>
       </header>
@@ -46,11 +43,7 @@ export default function Home() {
           required.
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <Button size="lg" asChild>
-            <Link href="/dashboard">
-              Start Coding <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          <SignInButton variant="default" size="lg" />
           <Button size="lg" variant="outline" asChild>
             <a
               href="https://github.com/debarshimaity2004/vibecode-editor"
@@ -162,11 +155,7 @@ export default function Home() {
             Sign in with Google or GitHub and spin up your first playground in
             seconds.
           </p>
-          <Button size="lg" asChild>
-            <Link href="/dashboard">
-              Get Started for Free <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          <SignInButton variant="default" size="lg" />
         </div>
       </section>
 
