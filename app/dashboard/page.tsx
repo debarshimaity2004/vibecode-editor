@@ -1,7 +1,6 @@
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 import { redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -13,24 +12,22 @@ import {
 } from "@/components/ui/table"
 import { ProjectActionsMenu } from "@/components/project-actions-menu"
 import { FavoriteButton } from "@/components/favorite-button"
-import { createProject } from "@/app/actions/projects"
-import { Plus, FolderOpen } from "lucide-react"
+import { NewProjectButton } from "@/components/new-project-button"
+import { FolderOpen } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
-
-async function handleCreate(_: FormData) {
-  "use server"
-  await createProject()
-}
 
 export default async function DashboardPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/")
 
-  const projects = await db.project.findMany({
-    where: { userId: session.user.id },
-    orderBy: [{ isFavorite: "desc" }, { updatedAt: "desc" }],
-  })
+  const [projects, templates] = await Promise.all([
+    db.project.findMany({
+      where: { userId: session.user.id },
+      orderBy: [{ isFavorite: "desc" }, { updatedAt: "desc" }],
+    }),
+    db.template.findMany({ orderBy: { category: "asc" } }),
+  ])
 
   return (
     <div className="space-y-6">
@@ -42,12 +39,7 @@ export default async function DashboardPage() {
             {projects.length} project{projects.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <form action={handleCreate}>
-          <Button type="submit">
-            <Plus className="mr-2 h-4 w-4" />
-            New Project
-          </Button>
-        </form>
+        <NewProjectButton templates={templates} />
       </div>
 
       {/* Empty state */}
@@ -62,12 +54,7 @@ export default async function DashboardPage() {
               Create your first project to get started.
             </p>
           </div>
-          <form action={handleCreate}>
-            <Button type="submit">
-              <Plus className="mr-2 h-4 w-4" />
-              New Project
-            </Button>
-          </form>
+          <NewProjectButton templates={templates} />
         </div>
       ) : (
         <div className="rounded-xl border overflow-hidden">
@@ -82,51 +69,54 @@ export default async function DashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {projects.map((project) => (
-                <TableRow key={project.id} className="group">
-                  <TableCell className="py-0">
-                    <FavoriteButton
-                      projectId={project.id}
-                      isFavorite={project.isFavorite}
-                    />
-                  </TableCell>
+              {projects.map((project) => {
+                const template = templates.find((t) => t.id === project.templateId)
+                return (
+                  <TableRow key={project.id} className="group">
+                    <TableCell className="py-0">
+                      <FavoriteButton
+                        projectId={project.id}
+                        isFavorite={project.isFavorite}
+                      />
+                    </TableCell>
 
-                  <TableCell>
-                    <Link
-                      href={`/playground/${project.id}`}
-                      className="font-medium hover:underline underline-offset-4"
-                    >
-                      {project.name}
-                    </Link>
-                  </TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/playground/${project.id}`}
+                        className="font-medium hover:underline underline-offset-4"
+                      >
+                        {project.name}
+                      </Link>
+                    </TableCell>
 
-                  <TableCell className="hidden sm:table-cell">
-                    {project.templateId ? (
-                      <Badge variant="secondary" className="text-xs">
-                        {project.templateId}
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">—</span>
-                    )}
-                  </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {template ? (
+                        <Badge variant="secondary" className="text-xs">
+                          {template.name}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">—</span>
+                      )}
+                    </TableCell>
 
-                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
-                    {formatDistanceToNow(new Date(project.updatedAt), {
-                      addSuffix: true,
-                    })}
-                  </TableCell>
+                    <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                      {formatDistanceToNow(new Date(project.updatedAt), {
+                        addSuffix: true,
+                      })}
+                    </TableCell>
 
-                  <TableCell className="py-0 text-right">
-                    <ProjectActionsMenu
-                      project={{
-                        id: project.id,
-                        name: project.name,
-                        isFavorite: project.isFavorite,
-                      }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+                    <TableCell className="py-0 text-right">
+                      <ProjectActionsMenu
+                        project={{
+                          id: project.id,
+                          name: project.name,
+                          isFavorite: project.isFavorite,
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>

@@ -14,13 +14,19 @@ async function requireUser() {
 export async function createProject(templateId?: string) {
   const userId = await requireUser()
 
+  let files = {}
+  let name = "Untitled Project"
+
+  if (templateId) {
+    const template = await db.template.findUnique({ where: { id: templateId } })
+    if (template) {
+      files = template.files as object
+      name = `My ${template.name} App`
+    }
+  }
+
   const project = await db.project.create({
-    data: {
-      name: "Untitled Project",
-      userId,
-      templateId: templateId ?? null,
-      files: {},
-    },
+    data: { name, userId, templateId: templateId ?? null, files },
   })
 
   revalidatePath("/dashboard")

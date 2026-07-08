@@ -18,7 +18,7 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 
 ## Current state
 
-**Phases 1–3 complete.**
+**Phases 1–4 complete.**
 
 - Next.js 16 + React 19 + TypeScript project initialized
 - shadcn/ui component library installed (55 components, radix-nova style)
@@ -32,6 +32,11 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 - Dashboard with projects table, empty state, user avatar dropdown
 - Full project CRUD — create, rename, duplicate, favorite, delete (all scoped to the signed-in user)
 - Per-row actions menu with rename dialog and delete confirmation
+- Template system with 5 starters: React + Vite, Vue + Vite, Express, Hono, Next.js
+- Template picker modal with category filter (Frontend / Backend / Fullstack) and search
+- Seed script (`npm run seed`) to populate templates into MongoDB
+- New projects are bootstrapped with the selected template's starter files
+- Playground placeholder page at `/playground/[id]` (full IDE coming in Phase 5)
 
 ## Tech stack
 
@@ -54,7 +59,7 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 - [x] Phase 1 — Auth & DB schema (NextAuth v5, Prisma models, protected routes)
 - [x] Phase 2 — Landing page + dark mode
 - [x] Phase 3 — Dashboard (project table, CRUD, favorites)
-- [ ] Phase 4 — Template system (seed data, picker modal, multi-step form)
+- [x] Phase 4 — Template system (seed data, picker modal, project bootstrapping)
 - [ ] Phase 5 — Playground layout (resizable 3-panel layout)
 - [ ] Phase 6 — File explorer
 - [ ] Phase 7 — Monaco editor + key bindings
@@ -86,10 +91,11 @@ GITHUB_CLIENT_SECRET=...
 GROQ_API_KEY=gsk_...          # free at console.groq.com
 ```
 
-After filling in `DATABASE_URL`, push the schema:
+After filling in `DATABASE_URL`, push the schema and seed templates:
 
 ```bash
 npx prisma db push
+npm run seed
 ```
 
 ## Deployment
