@@ -18,7 +18,7 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 
 ## Current state
 
-**Phases 1–5 complete.**
+**Phases 1–6 complete.**
 
 - Next.js 16 + React 19 + TypeScript project initialized
 - shadcn/ui component library installed (55 components, radix-nova style)
@@ -42,6 +42,11 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
   - Right — Preview / Terminal tab switcher with placeholders for Phase 8 & 9
 - Inline project rename from the playground header
 - Playground header with back-to-dashboard, Run button (Phase 8), AI toggle (Phase 10), theme toggle, user avatar
+- File explorer CRUD — create file/folder (inline input), rename (click pencil), delete with confirmation
+- Editable file content in the center panel (textarea, replaced by Monaco in Phase 7)
+- Unsaved-change dot indicator on editor tabs
+- Ctrl+S saves file content to MongoDB; create/rename/delete auto-save immediately
+- Unsaved changes tracked separately from saved state so the dot clears on save
 
 ## Tech stack
 
@@ -66,7 +71,7 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 - [x] Phase 3 — Dashboard (project table, CRUD, favorites)
 - [x] Phase 4 — Template system (seed data, picker modal, project bootstrapping)
 - [x] Phase 5 — Playground layout (resizable 3-panel, file explorer, editor tabs, preview/terminal)
-- [ ] Phase 6 — File explorer
+- [x] Phase 6 — File explorer (create/rename/delete files & folders, editable content, unsaved indicators, Ctrl+S save)
 - [ ] Phase 7 — Monaco editor + key bindings
 - [ ] Phase 8 — WebContainer integration + live preview
 - [ ] Phase 9 — Terminal (xterm.js + WebContainer shell)

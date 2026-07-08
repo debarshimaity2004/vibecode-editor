@@ -5,13 +5,18 @@ import { FileCode2, X } from "lucide-react"
 
 interface Props {
   files: Record<string, string>
+  savedFiles: Record<string, string>
   openFiles: string[]
   selectedFile: string | null
   onSelectFile: (path: string) => void
   onCloseFile: (path: string) => void
+  onUpdateContent: (path: string, content: string) => void
 }
 
-export function EditorPanel({ files, openFiles, selectedFile, onSelectFile, onCloseFile }: Props) {
+export function EditorPanel({
+  files, savedFiles, openFiles, selectedFile,
+  onSelectFile, onCloseFile, onUpdateContent,
+}: Props) {
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Tabs */}
@@ -20,6 +25,7 @@ export function EditorPanel({ files, openFiles, selectedFile, onSelectFile, onCl
           {openFiles.map((path) => {
             const name = path.split("/").pop() ?? path
             const active = path === selectedFile
+            const unsaved = files[path] !== savedFiles[path]
             return (
               <div
                 key={path}
@@ -31,8 +37,14 @@ export function EditorPanel({ files, openFiles, selectedFile, onSelectFile, onCl
                 )}
                 onClick={() => onSelectFile(path)}
               >
-                <span>{name}</span>
+                <span className="flex items-center gap-1">
+                  {name}
+                  {unsaved && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary inline-block" title="Unsaved changes" />
+                  )}
+                </span>
                 <button
+                  type="button"
                   className="opacity-0 group-hover:opacity-100 hover:text-foreground transition-opacity"
                   onClick={(e) => { e.stopPropagation(); onCloseFile(path) }}
                 >
@@ -46,9 +58,9 @@ export function EditorPanel({ files, openFiles, selectedFile, onSelectFile, onCl
 
       {/* Editor area */}
       {selectedFile ? (
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 flex flex-col overflow-hidden">
           {/* Path breadcrumb */}
-          <div className="flex items-center gap-1 px-4 py-1.5 border-b bg-muted/20 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1 px-4 py-1.5 border-b bg-muted/20 text-xs text-muted-foreground shrink-0">
             {selectedFile.split("/").map((part, i, arr) => (
               <span key={i} className="flex items-center gap-1">
                 {i > 0 && <span>/</span>}
@@ -57,10 +69,14 @@ export function EditorPanel({ files, openFiles, selectedFile, onSelectFile, onCl
             ))}
           </div>
 
-          {/* File content — plain text until Monaco (Phase 7) */}
-          <pre className="p-4 text-xs font-mono leading-relaxed text-foreground/85 whitespace-pre overflow-x-auto">
-            {files[selectedFile] ?? ""}
-          </pre>
+          {/* Editable content — replaced by Monaco in Phase 7 */}
+          <textarea
+            className="flex-1 p-4 text-xs font-mono leading-relaxed bg-background text-foreground/85 resize-none outline-none"
+            value={files[selectedFile] ?? ""}
+            onChange={(e) => onUpdateContent(selectedFile, e.target.value)}
+            spellCheck={false}
+            aria-label={`Edit ${selectedFile}`}
+          />
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">

@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels"
 import { PlaygroundHeader } from "./playground-header"
 import { FileExplorer } from "./file-explorer"
 import { EditorPanel } from "./editor-panel"
 import { PreviewTerminalPanel } from "./preview-terminal-panel"
+import { saveProjectFiles } from "@/app/actions/projects"
+import { toast } from "sonner"
 
 interface Project {
   id: string
@@ -25,6 +27,8 @@ interface Props {
 }
 
 export function PlaygroundLayout({ project, user }: Props) {
+  const [files, setFiles] = useState<Record<string, string>>(project.files)
+  const [savedFiles, setSavedFiles] = useState<Record<string, string>>(project.files)
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [openFiles, setOpenFiles] = useState<string[]>([])
   const [activeRightTab, setActiveRightTab] = useState<"preview" | "terminal">("preview")
@@ -38,10 +42,86 @@ export function PlaygroundLayout({ project, user }: Props) {
   function handleCloseFile(path: string) {
     const next = openFiles.filter((f) => f !== path)
     setOpenFiles(next)
-    if (selectedFile === path) {
-      setSelectedFile(next[next.length - 1] ?? null)
-    }
+    if (selectedFile === path) setSelectedFile(next[next.length - 1] ?? null)
   }
+
+  function handleUpdateContent(path: string, content: string) {
+    setFiles((prev) => ({ ...prev, [path]: content }))
+  }
+
+  async function handleCreateFile(path: string) {
+    const next = { ...files, [path]: "" }
+    setFiles(next)
+    setSavedFiles(next)
+    handleSelectFile(path)
+    try { await saveProjectFiles(project.id, next) } catch { toast.error("Failed to save") }
+  }
+
+  async function handleRename(oldPath: string, newPath: string, isFolder: boolean) {
+    const next: Record<string, string> = {}
+    for (const [k, v] of Object.entries(files)) {
+      if (isFolder) {
+        next[k.startsWith(oldPath + "/") ? newPath + k.slice(oldPath.length) : k] = v
+      } else {
+        next[k === oldPath ? newPath : k] = v
+      }
+    }
+    setFiles(next)
+    setSavedFiles(next)
+    setOpenFiles((prev) =>
+      prev.map((f) => {
+        if (isFolder && f.startsWith(oldPath + "/")) return newPath + f.slice(oldPath.length)
+        return f === oldPath ? newPath : f
+      })
+    )
+    setSelectedFile((prev) => {
+      if (!prev) return prev
+      if (isFolder && prev.startsWith(oldPath + "/")) return newPath + prev.slice(oldPath.length)
+      return prev === oldPath ? newPath : prev
+    })
+    try { await saveProjectFiles(project.id, next) } catch { toast.error("Failed to save") }
+  }
+
+  async function handleDelete(path: string, isFolder: boolean) {
+    const next: Record<string, string> = {}
+    for (const [k, v] of Object.entries(files)) {
+      const skip = isFolder ? k === path || k.startsWith(path + "/") : k === path
+      if (!skip) next[k] = v
+    }
+    setFiles(next)
+    setSavedFiles(next)
+    setOpenFiles((prev) =>
+      prev.filter((f) => isFolder ? f !== path && !f.startsWith(path + "/") : f !== path)
+    )
+    setSelectedFile((prev) => {
+      if (!prev) return prev
+      const removed = isFolder ? (prev === path || prev.startsWith(path + "/")) : prev === path
+      return removed ? null : prev
+    })
+    try { await saveProjectFiles(project.id, next) } catch { toast.error("Failed to save") }
+  }
+
+  const handleSave = useCallback(async () => {
+    try {
+      await saveProjectFiles(project.id, files)
+      setSavedFiles(files)
+      toast.success("Saved")
+    } catch {
+      toast.error("Failed to save")
+    }
+  }, [project.id, files])
+
+  // Ctrl+S
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault()
+        handleSave()
+      }
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [handleSave])
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -57,9 +137,12 @@ export function PlaygroundLayout({ project, user }: Props) {
         {/* File explorer */}
         <Panel defaultSize={20} minSize={14} maxSize={35}>
           <FileExplorer
-            files={project.files}
+            files={files}
             selectedFile={selectedFile}
             onSelectFile={handleSelectFile}
+            onCreateFile={handleCreateFile}
+            onRename={handleRename}
+            onDelete={handleDelete}
           />
         </Panel>
 
@@ -68,11 +151,13 @@ export function PlaygroundLayout({ project, user }: Props) {
         {/* Editor */}
         <Panel defaultSize={50} minSize={25}>
           <EditorPanel
-            files={project.files}
+            files={files}
+            savedFiles={savedFiles}
             openFiles={openFiles}
             selectedFile={selectedFile}
             onSelectFile={setSelectedFile}
             onCloseFile={handleCloseFile}
+            onUpdateContent={handleUpdateContent}
           />
         </Panel>
 

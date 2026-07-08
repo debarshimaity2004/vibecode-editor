@@ -82,3 +82,12 @@ export async function deleteProject(id: string) {
   await db.project.deleteMany({ where: { id, userId } })
   revalidatePath("/dashboard")
 }
+
+export async function saveProjectFiles(id: string, files: Record<string, string>) {
+  const userId = await requireUser()
+
+  await db.project.updateMany({
+    where: { id, userId },
+    data: { files },
+  })
+}
