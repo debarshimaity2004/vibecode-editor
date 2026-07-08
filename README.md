@@ -18,7 +18,7 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 
 ## Current state
 
-**Phases 1–4 complete.**
+**Phases 1–5 complete.**
 
 - Next.js 16 + React 19 + TypeScript project initialized
 - shadcn/ui component library installed (55 components, radix-nova style)
@@ -35,8 +35,13 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 - Template system with 5 starters: React + Vite, Vue + Vite, Express, Hono, Next.js
 - Template picker modal with category filter (Frontend / Backend / Fullstack) and search
 - Seed script (`npm run seed`) to populate templates into MongoDB
-- New projects are bootstrapped with the selected template's starter files
-- Playground placeholder page at `/playground/[id]` (full IDE coming in Phase 5)
+- New projects bootstrapped with the selected template's starter files
+- Resizable 3-panel playground layout (`react-resizable-panels`):
+  - Left — file explorer with collapsible folder tree and file-type icons
+  - Center — editor panel with file tabs, breadcrumb, and raw file content preview
+  - Right — Preview / Terminal tab switcher with placeholders for Phase 8 & 9
+- Inline project rename from the playground header
+- Playground header with back-to-dashboard, Run button (Phase 8), AI toggle (Phase 10), theme toggle, user avatar
 
 ## Tech stack
 
@@ -60,7 +65,7 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 - [x] Phase 2 — Landing page + dark mode
 - [x] Phase 3 — Dashboard (project table, CRUD, favorites)
 - [x] Phase 4 — Template system (seed data, picker modal, project bootstrapping)
-- [ ] Phase 5 — Playground layout (resizable 3-panel layout)
+- [x] Phase 5 — Playground layout (resizable 3-panel, file explorer, editor tabs, preview/terminal)
 - [ ] Phase 6 — File explorer
 - [ ] Phase 7 — Monaco editor + key bindings
 - [ ] Phase 8 — WebContainer integration + live preview
