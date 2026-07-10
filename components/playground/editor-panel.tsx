@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { FileCode2, X } from "lucide-react"
+import { MonacoEditor } from "./monaco-editor"
 
 interface Props {
   files: Record<string, string>
@@ -45,6 +46,7 @@ export function EditorPanel({
                 </span>
                 <button
                   type="button"
+                  title="Close file"
                   className="opacity-0 group-hover:opacity-100 hover:text-foreground transition-opacity"
                   onClick={(e) => { e.stopPropagation(); onCloseFile(path) }}
                 >
@@ -69,14 +71,13 @@ export function EditorPanel({
             ))}
           </div>
 
-          {/* Editable content — replaced by Monaco in Phase 7 */}
-          <textarea
-            className="flex-1 p-4 text-xs font-mono leading-relaxed bg-background text-foreground/85 resize-none outline-none"
-            value={files[selectedFile] ?? ""}
-            onChange={(e) => onUpdateContent(selectedFile, e.target.value)}
-            spellCheck={false}
-            aria-label={`Edit ${selectedFile}`}
-          />
+          <div className="flex-1 overflow-hidden">
+            <MonacoEditor
+              path={selectedFile}
+              value={files[selectedFile] ?? ""}
+              onChange={(val) => onUpdateContent(selectedFile, val)}
+            />
+          </div>
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
@@ -89,9 +90,6 @@ export function EditorPanel({
               Select a file from the explorer to view it.
             </p>
           </div>
-          <p className="text-xs text-muted-foreground/60">
-            Monaco Editor coming in Phase 7
-          </p>
         </div>
       )}
     </div>
