@@ -33,29 +33,14 @@ function toFileSystemTree(files: Record<string, string>): Record<string, unknown
   return tree
 }
 
-function stripAnsi(str: string): string {
-  return str
-    .replace(/\x1b\[[0-9;]*[A-Za-z]/g, "")
-    .replace(/\x1b\][^\x07]*\x07/g, "")
-}
-
-async function pipeToLog(stream: ReadableStream<string>, onLine: (line: string) => void) {
+async function pipeToCallback(stream: ReadableStream<string>, onData: (data: string) => void) {
   const reader = stream.getReader()
-  let buffer = ""
   try {
     while (true) {
       const { done, value } = await reader.read()
       if (done) break
-      buffer += value
-      const lines = buffer.split("\n")
-      buffer = lines.pop() ?? ""
-      for (const line of lines) {
-        const clean = stripAnsi(line).trim()
-        if (clean) onLine(clean)
-      }
+      onData(value)
     }
-    const clean = stripAnsi(buffer).trim()
-    if (clean) onLine(clean)
   } finally {
     reader.releaseLock()
   }
@@ -64,61 +49,64 @@ async function pipeToLog(stream: ReadableStream<string>, onLine: (line: string) 
 export function useWebContainer() {
   const [status, setStatus] = useState<WCStatus>("idle")
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [logs, setLogs] = useState<string[]>([])
   const wcRef = useRef<WebContainer | null>(null)
+  // Callback registered by XTermPanel so npm output streams into the terminal
+  const termWriteRef = useRef<((data: string) => void) | null>(null)
 
-  function addLog(line: string) {
-    setLogs((prev) => [...prev, line])
-  }
+  const registerTermWrite = useCallback((fn: ((data: string) => void) | null) => {
+    termWriteRef.current = fn
+  }, [])
+
+  const spawnShell = useCallback(async (cols: number, rows: number) => {
+    const wc = await bootOnce()
+    wcRef.current = wc
+    return wc.spawn("jsh", { terminal: { cols, rows }, env: { TERM: "xterm-256color" } })
+  }, [])
 
   const start = useCallback(async (files: Record<string, string>) => {
-    setLogs([])
     setPreviewUrl(null)
     setStatus("booting")
 
     try {
-      addLog("⚡ Booting WebContainer…")
       const wc = await bootOnce()
       wcRef.current = wc
 
-      addLog("📁 Mounting project files…")
+      setStatus("installing")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await wc.mount(toFileSystemTree(files) as any)
 
-      setStatus("installing")
-      addLog("📦 Running npm install…")
+      const write = (d: string) => termWriteRef.current?.(d)
+      write("\r\n\x1b[34m▶ npm install\x1b[0m\r\n")
+
       const install = await wc.spawn("npm", ["install"])
-      pipeToLog(install.output, addLog)
+      pipeToCallback(install.output, write)
       const installCode = await install.exit
 
       if (installCode !== 0) {
-        addLog("❌ npm install failed — check the logs above")
+        write("\r\n\x1b[31m✖ npm install failed\x1b[0m\r\n")
         setStatus("error")
         return
       }
-      addLog("✅ Dependencies installed")
 
       setStatus("starting")
-      addLog("🚀 Starting dev server…")
+      write("\r\n\x1b[34m▶ npm run dev\x1b[0m\r\n")
       const dev = await wc.spawn("npm", ["run", "dev"])
-      pipeToLog(dev.output, addLog)
+      pipeToCallback(dev.output, write)
 
       wc.on("server-ready", (_port, url) => {
-        addLog(`✅ Server ready → ${url}`)
+        write(`\r\n\x1b[32m✔ Server ready → ${url}\x1b[0m\r\n`)
         setPreviewUrl(url)
         setStatus("running")
       })
     } catch (err) {
-      addLog(`❌ ${err instanceof Error ? err.message : String(err)}`)
+      termWriteRef.current?.(`\r\n\x1b[31m✖ ${err instanceof Error ? err.message : String(err)}\x1b[0m\r\n`)
       setStatus("error")
     }
   }, [])
 
   const stop = useCallback(() => {
-    // WebContainer can't be killed, but we clear the UI state
     setStatus("idle")
     setPreviewUrl(null)
-    setLogs([])
   }, [])
 
   const writeFile = useCallback(async (path: string, content: string) => {
@@ -129,9 +117,9 @@ export function useWebContainer() {
       if (dir) await wc.fs.mkdir(dir, { recursive: true })
       await wc.fs.writeFile(path, content)
     } catch {
-      // WC might not be fully ready; silently ignore
+      // ignore — WC might not be fully ready
     }
   }, [])
 
-  return { status, previewUrl, logs, start, stop, writeFile }
+  return { status, previewUrl, start, stop, writeFile, spawnShell, registerTermWrite }
 }

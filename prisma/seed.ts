@@ -57,10 +57,37 @@ export default function App() {
     </div>
   )
 }`,
-      "src/App.css": `* { box-sizing: border-box; margin: 0; padding: 0 }
-body { background: #0f0f0f; color: #ffffffde; min-height: 100vh; display: flex; justify-content: center; align-items: center }
-button { padding: .5rem 1.5rem; border-radius: 8px; border: 1px solid #646cff; background: transparent; color: inherit; font-size: 1rem; cursor: pointer }
-button:hover { background: #646cff22 }`,
+      "src/App.css": `* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0f0f0f;
+  color: #ffffffde;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+}
+
+button {
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #646cff;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #646cff22;
+}
+`,
     },
   },
   {
@@ -109,10 +136,36 @@ const count = ref(0)
 </template>
 
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0 }
-body { background: #0f0f0f; color: #ffffffde; min-height: 100vh; display: flex; justify-content: center; align-items: center }
-button { padding: .5rem 1.5rem; border-radius: 8px; border: 1px solid #42b883; background: transparent; color: inherit; font-size: 1rem; cursor: pointer }
-button:hover { background: #42b88322 }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0f0f0f;
+  color: #ffffffde;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+}
+
+button {
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #42b883;
+  background: transparent;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: #42b88322;
+}
 </style>`,
     },
   },

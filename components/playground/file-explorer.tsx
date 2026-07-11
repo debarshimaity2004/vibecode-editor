@@ -77,8 +77,10 @@ function buildTree(files: Record<string, string>): FileNode[] {
 
   for (const filePath of Object.keys(files).sort()) {
     const parts = filePath.split("/")
+    const isGitkeep = parts[parts.length - 1] === ".gitkeep"
+
     if (parts.length === 1) {
-      root.push({ type: "file", name: parts[0], path: filePath })
+      if (!isGitkeep) root.push({ type: "file", name: parts[0], path: filePath })
     } else {
       let currentLevel = root
       let currentPath = ""
@@ -93,7 +95,10 @@ function buildTree(files: Record<string, string>): FileNode[] {
         }
         currentLevel = folder.children
       }
-      currentLevel.push({ type: "file", name: parts[parts.length - 1], path: filePath })
+      // .gitkeep is hidden — it only exists to keep the folder in the files Record
+      if (!isGitkeep) {
+        currentLevel.push({ type: "file", name: parts[parts.length - 1], path: filePath })
+      }
     }
   }
   return root
@@ -152,34 +157,54 @@ type EditState =
   | { type: "new-file"; parentPath: string }
   | { type: "new-folder"; parentPath: string }
 
+interface DragState {
+  path: string
+  isFolder: boolean
+}
+
 function TreeNode({
   node, depth, selectedFile, editState,
+  drag, dragOver,
   onSelectFile, onSetEdit, onCommitRename, onCancelEdit,
-  onDeleteRequest,
+  onDeleteRequest, onDragStart, onDragEnd, onDragOver, onDrop,
 }: {
   node: FileNode
   depth: number
   selectedFile: string | null
   editState: EditState
+  drag: DragState | null
+  dragOver: string | null
   onSelectFile: (path: string) => void
   onSetEdit: (s: EditState) => void
   onCommitRename: (oldPath: string, newName: string, isFolder: boolean) => void
   onCancelEdit: () => void
   onDeleteRequest: (path: string, isFolder: boolean) => void
+  onDragStart: (path: string, isFolder: boolean) => void
+  onDragEnd: () => void
+  onDragOver: (folderPath: string) => void
+  onDrop: (targetFolderPath: string) => void
 }) {
   const [open, setOpen] = useState(true)
   const d = clamp(depth, FOLDER_PL.length - 1)
   const isRenaming = editState.type === "renaming" && editState.path === node.path
 
   if (node.type === "folder") {
+    const isDropTarget = dragOver === node.path && drag?.path !== node.path
     return (
       <div>
         <div
+          draggable
           className={cn(
-            "group flex items-center gap-1 py-0.5 pr-1 hover:bg-muted/60 cursor-pointer text-sm",
+            "group flex items-center gap-1 py-0.5 pr-1 cursor-pointer text-sm",
+            isDropTarget ? "bg-primary/20 ring-1 ring-inset ring-primary/50" : "hover:bg-muted/60",
             FOLDER_PL[d]
           )}
           onClick={() => setOpen(!open)}
+          onDragStart={(e) => { e.stopPropagation(); onDragStart(node.path, true) }}
+          onDragEnd={onDragEnd}
+          onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); onDragOver(node.path) }}
+          onDragLeave={(e) => { e.stopPropagation(); onDragOver("") }}
+          onDrop={(e) => { e.preventDefault(); e.stopPropagation(); onDrop(node.path) }}
         >
           {open ? <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
                 : <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />}
@@ -230,19 +255,31 @@ function TreeNode({
                 depth={depth + 1}
                 selectedFile={selectedFile}
                 editState={editState}
+                drag={drag}
+                dragOver={dragOver}
                 onSelectFile={onSelectFile}
                 onSetEdit={onSetEdit}
                 onCommitRename={onCommitRename}
                 onCancelEdit={onCancelEdit}
                 onDeleteRequest={onDeleteRequest}
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
+                onDragOver={onDragOver}
+                onDrop={onDrop}
               />
             ))}
             {editState.type === "new-file" && editState.parentPath === node.path && (
               <div className={cn("py-0.5 pr-2", INPUT_PL[d])}>
                 <InlineInput
-                  placeholder="filename.ts"
+                  placeholder="file.tsx  or  folder/"
                   onCommit={(val) => {
-                    if (val) onCommitRename("", `${node.path}/${val}`, false)
+                    if (val) {
+                      const base = `${node.path}/${val}`
+                      const path = val.endsWith("/")
+                        ? `${base.slice(0, -1)}/.gitkeep`
+                        : base
+                      onCommitRename("", path, false)
+                    }
                     onCancelEdit()
                   }}
                   onCancel={onCancelEdit}
@@ -270,12 +307,16 @@ function TreeNode({
   // File node
   return (
     <div
+      draggable
       className={cn(
         "group flex items-center gap-1.5 py-0.5 pr-1 cursor-pointer text-sm",
         FILE_PL[d],
-        selectedFile === node.path ? "bg-primary/15 text-foreground" : "hover:bg-muted/60 text-foreground/70"
+        selectedFile === node.path ? "bg-primary/15 text-foreground" : "hover:bg-muted/60 text-foreground/70",
+        drag?.path === node.path ? "opacity-50" : ""
       )}
       onClick={() => onSelectFile(node.path)}
+      onDragStart={(e) => { e.stopPropagation(); onDragStart(node.path, false) }}
+      onDragEnd={onDragEnd}
     >
       <FileIcon name={node.name} />
 
@@ -318,6 +359,8 @@ export function FileExplorer({
 }: FileExplorerProps) {
   const [editState, setEditState] = useState<EditState>({ type: "idle" })
   const [deleteTarget, setDeleteTarget] = useState<{ path: string; isFolder: boolean } | null>(null)
+  const [drag, setDrag] = useState<DragState | null>(null)
+  const [dragOver, setDragOver] = useState<string | null>(null)
   const tree = buildTree(files)
 
   function handleCommitRename(oldPath: string, newNameOrPath: string, isFolder: boolean) {
@@ -335,6 +378,22 @@ export function FileExplorer({
     setEditState({ type: "idle" })
     if (!nameOrPath) return
     onCreateFile(nameOrPath)
+  }
+
+  function handleDrop(targetFolderPath: string) {
+    const dragged = drag
+    setDrag(null)
+    setDragOver(null)
+    if (!dragged) return
+    // Can't drop into itself
+    if (dragged.path === targetFolderPath) return
+    // Can't drop a folder into one of its own descendants
+    if (dragged.isFolder && targetFolderPath.startsWith(dragged.path + "/")) return
+    const name = dragged.path.split("/").pop()!
+    const newPath = targetFolderPath ? `${targetFolderPath}/${name}` : name
+    // Already in the target location
+    if (newPath === dragged.path) return
+    onRename(dragged.path, newPath, dragged.isFolder)
   }
 
   return (
@@ -362,12 +421,19 @@ export function FileExplorer({
       {(editState.type === "new-file" || editState.type === "new-folder") && editState.parentPath === "" && (
         <div className="px-2 py-1 border-b">
           <InlineInput
-            placeholder={editState.type === "new-folder" ? "folder name" : "filename.ts"}
+            placeholder={editState.type === "new-folder" ? "folder-name" : "file.tsx  or  folder/"}
             onCommit={(val) => {
-              if (val) handleCommitNew(
-                editState.type === "new-folder" ? `${val}/.gitkeep` : val
-              )
-              else setEditState({ type: "idle" })
+              if (val) {
+                if (editState.type === "new-folder") {
+                  handleCommitNew(`${val}/.gitkeep`)
+                } else if (val.endsWith("/")) {
+                  handleCommitNew(`${val.slice(0, -1)}/.gitkeep`)
+                } else {
+                  handleCommitNew(val)
+                }
+              } else {
+                setEditState({ type: "idle" })
+              }
             }}
             onCancel={() => setEditState({ type: "idle" })}
           />
@@ -375,7 +441,11 @@ export function FileExplorer({
       )}
 
       {/* Tree */}
-      <div className="flex-1 overflow-y-auto py-1 text-sm">
+      <div
+        className="flex-1 overflow-y-auto py-1 text-sm"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => { e.preventDefault(); handleDrop("") }}
+      >
         {tree.length === 0 && editState.type === "idle" ? (
           <p className="text-xs text-muted-foreground px-3 py-4 text-center">No files yet.</p>
         ) : (
@@ -386,11 +456,17 @@ export function FileExplorer({
               depth={0}
               selectedFile={selectedFile}
               editState={editState}
+              drag={drag}
+              dragOver={dragOver}
               onSelectFile={onSelectFile}
               onSetEdit={setEditState}
               onCommitRename={handleCommitRename}
               onCancelEdit={() => setEditState({ type: "idle" })}
               onDeleteRequest={(path, isFolder) => setDeleteTarget({ path, isFolder })}
+              onDragStart={(path, isFolder) => setDrag({ path, isFolder })}
+              onDragEnd={() => { setDrag(null); setDragOver(null) }}
+              onDragOver={(folderPath) => setDragOver(folderPath)}
+              onDrop={handleDrop}
             />
           ))
         )}

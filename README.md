@@ -2,55 +2,46 @@
 
 An AI-powered web IDE built in the browser — no local setup required. Write, run, and get intelligent code suggestions entirely in-browser using Monaco Editor, WebContainers, and Groq-powered AI.
 
-## What it does (planned)
+## What it does
 
 - **Authentication** — Sign in with Google or GitHub
 - **Dashboard** — Manage your coding playgrounds (create, rename, duplicate, delete, favorite)
-- **Template picker** — Bootstrap projects from React, Vue, Express, Hono, Next.js, Angular templates
+- **Template picker** — Bootstrap projects from React, Vue, Express, Hono, Next.js templates
 - **Playground** — Full in-browser IDE:
-  - Monaco Editor with syntax highlighting and key bindings
-  - File explorer (create / rename / delete files & folders)
-  - WebContainer — runs your app entirely in the browser
-  - Integrated terminal (xterm.js) — run `npm install`, `npm run dev`, etc.
-  - Live preview iframe
-  - AI inline autocomplete + chat assistant powered by Groq
+  - Monaco Editor with syntax highlighting, language detection, and theme sync
+  - File explorer with drag-and-drop, create / rename / delete files & folders
+  - WebContainer — runs your app entirely in the browser (no server needed)
+  - Integrated xterm.js terminal — `npm install`, `npm run dev`, full shell access
+  - Live preview iframe with reload button
+  - AI inline autocomplete + chat assistant powered by Groq *(coming in Phase 10)*
 - **Light / dark mode**
 
 ## Current state
 
-**Phases 1–8 complete.**
+**Phases 1–9 complete.**
 
 - Next.js 16 + React 19 + TypeScript project initialized
 - shadcn/ui component library installed (55 components, radix-nova style)
 - Tailwind CSS v4 configured
 - MongoDB + Prisma ORM 5 wired up — all collections live on Atlas (`User`, `Account`, `Session`, `VerificationToken`, `Project`, `Template`)
-- NextAuth.js v5 with Google + GitHub OAuth — sign-in dialog on landing page, JWT session strategy
-- Protected routes via `proxy.ts` (`/dashboard`, `/playground`)
+- NextAuth.js v5 with Google + GitHub OAuth — sign-in dialog on landing page, JWT session strategy, same-email account linking across providers
+- Protected routes via middleware (`/dashboard`, `/playground`)
 - Cross-Origin-Isolation headers set (required for WebContainers)
 - Landing page with hero, feature grid, CTA banner
 - Dark mode (default) + light mode toggle via `next-themes`
 - Dashboard with projects table, empty state, user avatar dropdown
-- Full project CRUD — create, rename, duplicate, favorite, delete (all scoped to the signed-in user)
+- Full project CRUD — create, rename, duplicate, favorite, delete (all scoped to signed-in user)
 - Per-row actions menu with rename dialog and delete confirmation
 - Template system with 5 starters: React + Vite, Vue + Vite, Express, Hono, Next.js
 - Template picker modal with category filter (Frontend / Backend / Fullstack) and search
 - Seed script (`npm run seed`) to populate templates into MongoDB
-- New projects bootstrapped with the selected template's starter files
-- Resizable 3-panel playground layout (`react-resizable-panels`):
-  - Left — file explorer with collapsible folder tree and file-type icons
-  - Center — editor panel with file tabs, breadcrumb, and raw file content preview
-  - Right — Preview / Terminal tab switcher with placeholders for Phase 8 & 9
-- Inline project rename from the playground header
-- Playground header with back-to-dashboard, Run button (Phase 8), AI toggle (Phase 10), theme toggle, user avatar
-- File explorer CRUD — create file/folder (inline input), rename (click pencil), delete with confirmation
-- Editable file content in the center panel (textarea, replaced by Monaco in Phase 7)
-- Unsaved-change dot indicator on editor tabs
-- Ctrl+S saves file content to MongoDB; create/rename/delete auto-save immediately
-- Unsaved changes tracked separately from saved state so the dot clears on save
-- Monaco Editor replacing textarea — syntax highlighting for TS/JS/JSON/CSS/HTML/Vue/Python etc.
-- Language auto-detected from file extension; theme syncs with dark/light mode toggle
-- Bracket pair colorization, smooth scrolling, auto-layout, compact scrollbars
-- Sonner `<Toaster>` added to providers so save/error toasts render app-wide
+- Resizable 3-panel playground layout (`react-resizable-panels`)
+- File explorer — collapsible folder tree with file-type colour icons, drag-and-drop to move files/folders, inline create/rename/delete, unsaved-change dot badge on editor tabs, Ctrl+S saves to MongoDB, create/rename/delete auto-saves immediately
+- Monaco Editor — syntax highlighting for TS/JS/JSX/TSX/JSON/CSS/HTML/Vue/Python etc., language auto-detected from extension, theme syncs with dark/light toggle, bracket-pair colorization
+- WebContainer integration — singleton boot pattern, mounts project files, streams `npm install` + `npm run dev` output to terminal, fires `server-ready` event to populate the preview iframe
+- Live preview iframe with browser chrome and reload button
+- xterm.js terminal — dark zinc theme, connects to WebContainer's `jsh` shell, ResizeObserver for responsive fit, clipboard paste (Ctrl+V / right-click), backspace, `TERM=xterm-256color` so readline uses clean single-char erase sequences
+- npm output (install + dev server) streamed into the terminal in real time with ANSI colours
 
 ## Tech stack
 
@@ -63,10 +54,10 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 | Database | MongoDB via Prisma ORM 5 |
 | Auth | NextAuth.js v5 — Google + GitHub OAuth |
 | Theme | next-themes |
-| Editor | Monaco Editor (planned) |
-| Runtime | WebContainers API (planned) |
-| Terminal | xterm.js (planned) |
-| AI | Groq API — Llama 3 / DeepSeek (planned) |
+| Editor | Monaco Editor (`@monaco-editor/react`) |
+| Runtime | WebContainers API (`@webcontainer/api`) |
+| Terminal | xterm.js (`@xterm/xterm`, `@xterm/addon-fit`, `@xterm/addon-web-links`) |
+| AI | Groq API — Llama 3 / DeepSeek *(Phase 10)* |
 
 ## Implementation roadmap
 
@@ -74,11 +65,11 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 - [x] Phase 2 — Landing page + dark mode
 - [x] Phase 3 — Dashboard (project table, CRUD, favorites)
 - [x] Phase 4 — Template system (seed data, picker modal, project bootstrapping)
-- [x] Phase 5 — Playground layout (resizable 3-panel, file explorer, editor tabs, preview/terminal)
-- [x] Phase 6 — File explorer (create/rename/delete files & folders, editable content, unsaved indicators, Ctrl+S save)
-- [x] Phase 7 — Monaco Editor (syntax highlighting, language detection, theme sync, bracket pairs, Ctrl+S save)
-- [x] Phase 8 — WebContainer integration + live preview (boot, npm install, npm run dev, server-ready iframe)
-- [ ] Phase 9 — Terminal (xterm.js + WebContainer shell)
+- [x] Phase 5 — Playground layout (resizable 3-panel, header, preview/terminal tabs)
+- [x] Phase 6 — File explorer (create/rename/delete, drag-and-drop, unsaved indicators, Ctrl+S)
+- [x] Phase 7 — Monaco Editor (syntax highlighting, language detection, theme sync)
+- [x] Phase 8 — WebContainer + live preview (boot, install, dev server, iframe)
+- [x] Phase 9 — Terminal (xterm.js + WebContainer shell, paste, backspace, npm output streaming)
 - [ ] Phase 10 — AI features (Groq autocomplete + chat assistant)
 - [ ] Phase 11 — Deployment (Render + MongoDB Atlas)
 

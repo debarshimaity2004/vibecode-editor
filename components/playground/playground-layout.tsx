@@ -34,7 +34,7 @@ export function PlaygroundLayout({ project, user }: Props) {
   const [openFiles, setOpenFiles] = useState<string[]>([])
   const [activeRightTab, setActiveRightTab] = useState<"preview" | "terminal">("preview")
 
-  const { status: wcStatus, previewUrl, logs, start, stop, writeFile } = useWebContainer()
+  const { status: wcStatus, previewUrl, start, stop, writeFile, spawnShell, registerTermWrite } = useWebContainer()
 
   function handleSelectFile(path: string) {
     setSelectedFile(path)
@@ -179,7 +179,8 @@ export function PlaygroundLayout({ project, user }: Props) {
             onTabChange={setActiveRightTab}
             status={wcStatus}
             previewUrl={previewUrl}
-            logs={logs}
+            spawnShell={spawnShell}
+            registerTermWrite={registerTermWrite}
           />
         </Panel>
       </PanelGroup>
