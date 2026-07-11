@@ -6,18 +6,21 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { DashboardNav } from "@/components/dashboard-nav"
 import { renameProject } from "@/app/actions/projects"
-import { ChevronLeft, Play, Square, Sparkles } from "lucide-react"
+import { ChevronLeft, Play, Square, Sparkles, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import type { WCStatus } from "@/hooks/use-web-container"
 
 interface Props {
   project: { id: string; name: string }
   user: { name?: string | null; email?: string | null; image?: string | null }
-  isRunning: boolean
+  wcStatus: WCStatus
   onRun: () => void
   onStop: () => void
 }
 
-export function PlaygroundHeader({ project, user, isRunning, onRun, onStop }: Props) {
+export function PlaygroundHeader({ project, user, wcStatus, onRun, onStop }: Props) {
+  const isRunning = wcStatus === "running"
+  const isLoading = wcStatus === "booting" || wcStatus === "installing" || wcStatus === "starting"
   const [name, setName] = useState(project.name)
   const [editing, setEditing] = useState(false)
   const [, startTransition] = useTransition()
@@ -85,10 +88,12 @@ export function PlaygroundHeader({ project, user, isRunning, onRun, onStop }: Pr
           size="sm"
           className={cn("h-7 gap-1.5 text-xs", isRunning ? "bg-destructive hover:bg-destructive/90" : "")}
           onClick={isRunning ? onStop : onRun}
-          disabled
-          title="Run (Phase 8 — WebContainers)"
+          disabled={isLoading}
+          title={isLoading ? "Starting…" : isRunning ? "Stop the dev server" : "Run in WebContainer"}
         >
-          {isRunning ? (
+          {isLoading ? (
+            <><Loader2 className="h-3 w-3 animate-spin" /> Starting…</>
+          ) : isRunning ? (
             <><Square className="h-3 w-3" /> Stop</>
           ) : (
             <><Play className="h-3 w-3" /> Run</>

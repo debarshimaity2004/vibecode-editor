@@ -7,6 +7,7 @@ import { FileExplorer } from "./file-explorer"
 import { EditorPanel } from "./editor-panel"
 import { PreviewTerminalPanel } from "./preview-terminal-panel"
 import { saveProjectFiles } from "@/app/actions/projects"
+import { useWebContainer } from "@/hooks/use-web-container"
 import { toast } from "sonner"
 
 interface Project {
@@ -32,7 +33,8 @@ export function PlaygroundLayout({ project, user }: Props) {
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [openFiles, setOpenFiles] = useState<string[]>([])
   const [activeRightTab, setActiveRightTab] = useState<"preview" | "terminal">("preview")
-  const [isRunning, setIsRunning] = useState(false)
+
+  const { status: wcStatus, previewUrl, logs, start, stop, writeFile } = useWebContainer()
 
   function handleSelectFile(path: string) {
     setSelectedFile(path)
@@ -47,6 +49,8 @@ export function PlaygroundLayout({ project, user }: Props) {
 
   function handleUpdateContent(path: string, content: string) {
     setFiles((prev) => ({ ...prev, [path]: content }))
+    // Sync to WebContainer FS live so HMR picks up changes
+    writeFile(path, content)
   }
 
   async function handleCreateFile(path: string) {
@@ -123,14 +127,19 @@ export function PlaygroundLayout({ project, user }: Props) {
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [handleSave])
 
+  function handleRun() {
+    setActiveRightTab("terminal")
+    start(files)
+  }
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <PlaygroundHeader
         project={project}
         user={user}
-        isRunning={isRunning}
-        onRun={() => setIsRunning(true)}
-        onStop={() => setIsRunning(false)}
+        wcStatus={wcStatus}
+        onRun={handleRun}
+        onStop={stop}
       />
 
       <PanelGroup direction="horizontal" className="flex-1 overflow-hidden">
@@ -168,6 +177,9 @@ export function PlaygroundLayout({ project, user }: Props) {
           <PreviewTerminalPanel
             activeTab={activeRightTab}
             onTabChange={setActiveRightTab}
+            status={wcStatus}
+            previewUrl={previewUrl}
+            logs={logs}
           />
         </Panel>
       </PanelGroup>

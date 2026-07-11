@@ -18,7 +18,7 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 
 ## Current state
 
-**Phases 1–7 complete.**
+**Phases 1–8 complete.**
 
 - Next.js 16 + React 19 + TypeScript project initialized
 - shadcn/ui component library installed (55 components, radix-nova style)
@@ -77,7 +77,7 @@ An AI-powered web IDE built in the browser — no local setup required. Write, r
 - [x] Phase 5 — Playground layout (resizable 3-panel, file explorer, editor tabs, preview/terminal)
 - [x] Phase 6 — File explorer (create/rename/delete files & folders, editable content, unsaved indicators, Ctrl+S save)
 - [x] Phase 7 — Monaco Editor (syntax highlighting, language detection, theme sync, bracket pairs, Ctrl+S save)
-- [ ] Phase 8 — WebContainer integration + live preview
+- [x] Phase 8 — WebContainer integration + live preview (boot, npm install, npm run dev, server-ready iframe)
 - [ ] Phase 9 — Terminal (xterm.js + WebContainer shell)
 - [ ] Phase 10 — AI features (Groq autocomplete + chat assistant)
 - [ ] Phase 11 — Deployment (Render + MongoDB Atlas)
