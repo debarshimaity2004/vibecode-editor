@@ -1,79 +1,102 @@
 # VibeCode Editor
 
-An AI-powered web IDE built in the browser — no local setup required. Write, run, and get intelligent code suggestions entirely in-browser using Monaco Editor, WebContainers, and Groq-powered AI.
+> An AI-powered web IDE that runs entirely in the browser — no local setup, no installs, no servers.
 
-## What it does
+Write code, run it live, chat with an AI assistant, and sync to GitHub — all inside a single browser tab.
 
-- **Authentication** — Sign in with Google or GitHub
-- **Dashboard** — Manage your coding playgrounds (create, rename, duplicate, delete, favorite)
-- **Template picker** — Bootstrap projects from React, Vue, Express, Hono, Next.js templates
-- **Playground** — Full in-browser IDE:
-  - Monaco Editor with syntax highlighting, language detection, and theme sync
-  - File explorer with drag-and-drop, create / rename / delete files & folders
-  - WebContainer — runs your app entirely in the browser (no server needed)
-  - Integrated xterm.js terminal — `npm install`, `npm run dev`, full shell access
-  - Live preview iframe with reload button
-  - AI inline autocomplete + chat assistant powered by Groq *(coming in Phase 10)*
-- **Light / dark mode**
+![Playground](screenshots/playground.png)
 
-## Current state
+---
 
-**Phases 1–9 complete.**
+## Screenshots
 
-- Next.js 16 + React 19 + TypeScript project initialized
-- shadcn/ui component library installed (55 components, radix-nova style)
-- Tailwind CSS v4 configured
-- MongoDB + Prisma ORM 5 wired up — all collections live on Atlas (`User`, `Account`, `Session`, `VerificationToken`, `Project`, `Template`)
-- NextAuth.js v5 with Google + GitHub OAuth — sign-in dialog on landing page, JWT session strategy, same-email account linking across providers
-- Protected routes via middleware (`/dashboard`, `/playground`)
-- Cross-Origin-Isolation headers set (required for WebContainers)
-- Landing page with hero, feature grid, CTA banner
-- Dark mode (default) + light mode toggle via `next-themes`
-- Dashboard with projects table, empty state, user avatar dropdown
-- Full project CRUD — create, rename, duplicate, favorite, delete (all scoped to signed-in user)
-- Per-row actions menu with rename dialog and delete confirmation
-- Template system with 5 starters: React + Vite, Vue + Vite, Express, Hono, Next.js
-- Template picker modal with category filter (Frontend / Backend / Fullstack) and search
-- Seed script (`npm run seed`) to populate templates into MongoDB
-- Resizable 3-panel playground layout (`react-resizable-panels`)
-- File explorer — collapsible folder tree with file-type colour icons, drag-and-drop to move files/folders, inline create/rename/delete, unsaved-change dot badge on editor tabs, Ctrl+S saves to MongoDB, create/rename/delete auto-saves immediately
-- Monaco Editor — syntax highlighting for TS/JS/JSX/TSX/JSON/CSS/HTML/Vue/Python etc., language auto-detected from extension, theme syncs with dark/light toggle, bracket-pair colorization
-- WebContainer integration — singleton boot pattern, mounts project files, streams `npm install` + `npm run dev` output to terminal, fires `server-ready` event to populate the preview iframe
-- Live preview iframe with browser chrome and reload button
-- xterm.js terminal — dark zinc theme, connects to WebContainer's `jsh` shell, ResizeObserver for responsive fit, clipboard paste (Ctrl+V / right-click), backspace, `TERM=xterm-256color` so readline uses clean single-char erase sequences
-- npm output (install + dev server) streamed into the terminal in real time with ANSI colours
+| Dashboard | Playground |
+|---|---|
+| ![Dashboard](screenshots/dashboard.png) | ![Editor](screenshots/playground.png) |
 
-## Tech stack
+| AI Chat Assistant | Terminal |
+|---|---|
+| ![AI Chat](screenshots/ai-chat.png) | ![Terminal](screenshots/terminal.png) |
+
+| Git — Clone / Init | Git — Commit & Push |
+|---|---|
+| ![Git Setup](screenshots/git1.png) | ![Git Commit](screenshots/git2.png) |
+
+| Template Picker |  |
+|---|---|
+| ![Templates](screenshots/template-picker.png) | |
+
+---
+
+## Features
+
+### Authentication
+- Sign in with **Google** or **GitHub** OAuth
+- Account linking — same email across providers merges into one account
+- Protected routes (`/dashboard`, `/playground`) via NextAuth middleware
+
+### Dashboard
+- View all your coding playgrounds in a clean table
+- **Create** from a template, **rename**, **duplicate**, **favorite** (star), **delete**
+- Empty state with a direct CTA to create your first project
+
+### Template System
+- 5 starters: **React + Vite**, **Vue + Vite**, **Express**, **Hono**, **Next.js**
+- Filter by category (Frontend / Backend / Fullstack) and search by name
+- Templates stored in MongoDB, seeded via `npm run seed`
+
+### Playground — Full In-Browser IDE
+- **Monaco Editor** — VS Code's editor engine with syntax highlighting for TS, JS, JSX, TSX, JSON, CSS, HTML, Python, Vue, and more; language auto-detected from file extension; theme syncs with dark/light toggle; bracket-pair colorization
+- **File Explorer** — collapsible folder tree, drag-and-drop to move files/folders, inline create / rename / delete, unsaved-change dot indicator on editor tabs, Ctrl+S saves to MongoDB
+- **WebContainer** — runs your Node.js app entirely in the browser; mounts files, streams `npm install` + `npm run dev` output to the terminal, fires a server-ready event to populate the live preview
+- **Live Preview** — iframe with browser chrome and reload button; updates as your code changes
+- **xterm.js Terminal** — full interactive shell connected to WebContainer's `jsh`; clipboard paste, backspace, ANSI colours, `TERM=xterm-256color` for clean readline behaviour
+- **Resizable panels** — drag the dividers between the file explorer, editor, and preview/terminal panels to whatever layout you prefer
+
+### AI Features
+- **Inline autocomplete** — ghost-text suggestions as you type, powered by Groq (Tab to accept, Ctrl+Space to trigger manually). Toggle on/off independently via the ⚡ button in the header
+- **AI Chat Assistant** — 320px resizable sidebar; context-aware (sends the currently open file with every message); streams responses token by token; code blocks have **Copy** and **Insert** buttons that paste directly at your cursor
+- Powered by **Groq** in production (`llama-3.3-70b-versatile`) — fast, free tier, no credit card
+
+### GitHub Integration
+- **Clone** any public repo (or private with a PAT) directly into the editor
+- **Init New** — initialize git on your existing editor files and connect to an empty GitHub repo
+- Stage all changes, write a commit message, and **Commit**
+- **Push** and **Pull** with a GitHub Personal Access Token (stored in session only, never persisted)
+- Changed-file list shows Modified / Added / Deleted indicators
+- All git operations run in-browser via **isomorphic-git** + LightningFS
+
+### Download as ZIP
+- Click the ↓ button in the header to download all project files as a `.zip` — preserves folder structure, no server needed
+
+### Light / Dark Mode
+- Dark by default; toggle in the header; Monaco editor theme syncs automatically
+
+---
+
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript 5 |
-| UI | React 19, shadcn/ui, Tailwind CSS v4 |
+| Framework | Next.js 16.2 (App Router) |
+| Language | TypeScript 5, strict mode |
+| UI | React 19, shadcn/ui (55 components, radix-nova), Tailwind CSS v4 |
 | Icons | Lucide React |
-| Database | MongoDB via Prisma ORM 5 |
+| Database | MongoDB via Prisma ORM 7 |
 | Auth | NextAuth.js v5 — Google + GitHub OAuth |
 | Theme | next-themes |
 | Editor | Monaco Editor (`@monaco-editor/react`) |
 | Runtime | WebContainers API (`@webcontainer/api`) |
 | Terminal | xterm.js (`@xterm/xterm`, `@xterm/addon-fit`, `@xterm/addon-web-links`) |
-| AI | Groq API — Llama 3 / DeepSeek *(Phase 10)* |
+| AI | Groq API — `llama-3.3-70b-versatile` (prod) / Ollama (local dev) |
+| Git | isomorphic-git + `@isomorphic-git/lightning-fs` |
+| ZIP | jszip |
+| Panels | react-resizable-panels |
+| Notifications | sonner |
 
-## Implementation roadmap
+---
 
-- [x] Phase 1 — Auth & DB schema (NextAuth v5, Prisma models, protected routes)
-- [x] Phase 2 — Landing page + dark mode
-- [x] Phase 3 — Dashboard (project table, CRUD, favorites)
-- [x] Phase 4 — Template system (seed data, picker modal, project bootstrapping)
-- [x] Phase 5 — Playground layout (resizable 3-panel, header, preview/terminal tabs)
-- [x] Phase 6 — File explorer (create/rename/delete, drag-and-drop, unsaved indicators, Ctrl+S)
-- [x] Phase 7 — Monaco Editor (syntax highlighting, language detection, theme sync)
-- [x] Phase 8 — WebContainer + live preview (boot, install, dev server, iframe)
-- [x] Phase 9 — Terminal (xterm.js + WebContainer shell, paste, backspace, npm output streaming)
-- [ ] Phase 10 — AI features (Groq autocomplete + chat assistant)
-- [ ] Phase 11 — Deployment (Render + MongoDB Atlas)
-
-## Getting started
+## Getting Started
 
 ```bash
 npm install
@@ -83,32 +106,65 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+### Environment variables
+
 Copy `.env.local.example` to `.env.local` and fill in:
 
-```
-DATABASE_URL=mongodb+srv://...
-NEXTAUTH_SECRET=...           # openssl rand -base64 32
+```env
+DATABASE_URL=mongodb+srv://...          # MongoDB Atlas connection string
+NEXTAUTH_SECRET=...                     # openssl rand -base64 32
 NEXTAUTH_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 GITHUB_CLIENT_ID=...
 GITHUB_CLIENT_SECRET=...
-GROQ_API_KEY=gsk_...          # free at console.groq.com
+GROQ_API_KEY=gsk_...                    # Free at console.groq.com
 ```
 
-After filling in `DATABASE_URL`, push the schema and seed templates:
+### Seed templates
+
+After filling in `DATABASE_URL`:
 
 ```bash
 npx prisma db push
 npm run seed
 ```
 
+---
+
+## Implementation Roadmap
+
+- [x] Phase 1 — Auth & DB schema (NextAuth v5, Prisma models, protected routes)
+- [x] Phase 2 — Landing page + dark mode
+- [x] Phase 3 — Dashboard (project table, CRUD, favorites)
+- [x] Phase 4 — Template system (seed data, picker modal, project bootstrapping)
+- [x] Phase 5 — Playground layout (resizable 3-panel, header, preview/terminal tabs)
+- [x] Phase 6 — File explorer (create/rename/delete, drag-and-drop, unsaved indicators)
+- [x] Phase 7 — Monaco Editor (syntax highlighting, language detection, theme sync)
+- [x] Phase 8 — WebContainer + live preview (boot, install, dev server, iframe)
+- [x] Phase 9 — Terminal (xterm.js + WebContainer shell, paste, backspace, npm output streaming)
+- [x] Phase 10 — AI features (Groq inline autocomplete + streaming chat assistant)
+- [x] Bonus — ZIP download + GitHub integration (clone, init, commit, push, pull)
+- [ ] Phase 11 — Deployment (Render + MongoDB Atlas)
+
+---
+
 ## Deployment
 
 Target: **Render** (web service) + **MongoDB Atlas** (free M0 cluster).
 
-- Build command: `npm install && npx prisma generate && npm run build`
-- Start command: `npm run start`
-- Add all environment variables in the Render dashboard
+| Setting | Value |
+|---|---|
+| Build command | `npm install && npx prisma generate && npm run build` |
+| Start command | `npm run start` |
+| Node version | 20+ |
 
-> **Note:** WebContainers require `Cross-Origin-Isolation` headers (`COOP: same-origin` + `COEP: require-corp`), already configured in `next.config.ts`.
+Add all environment variables from the section above in the Render dashboard, plus:
+
+```env
+NEXTAUTH_URL=https://your-app.onrender.com
+```
+
+> **Note:** WebContainers require `Cross-Origin-Isolation` headers (`COOP: same-origin` + `COEP: require-corp`). These are already configured in `next.config.ts` and apply to all routes automatically.
+
+After deploying, update the callback URLs in your Google and GitHub OAuth app settings to use the Render domain.
