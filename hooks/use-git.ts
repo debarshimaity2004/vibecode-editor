@@ -121,6 +121,36 @@ export function useGit(
 
   // ─── Operations ──────────────────────────────────────────────────────────────
 
+  const initRepo = useCallback(async (remoteUrl: string) => {
+    const fs = fsRef.current
+    if (!fs) return
+    setState((s) => ({ ...s, loading: true, error: null }))
+    try {
+      await git.init({ fs, dir: DIR, defaultBranch: "main" })
+      if (remoteUrl.trim()) {
+        await git.addRemote({ fs, dir: DIR, remote: "origin", url: remoteUrl.trim() })
+      }
+      // Write current editor files into the new repo
+      const currentFiles = getFiles()
+      await writeEditorFilesToFs(fs, currentFiles)
+      setState((s) => ({
+        ...s,
+        initialized: true,
+        branch: "main",
+        remoteUrl: remoteUrl.trim(),
+        loading: false,
+      }))
+      await refreshStatus(fs)
+    } catch (err) {
+      setState((s) => ({
+        ...s,
+        loading: false,
+        error: err instanceof Error ? err.message : "Init failed",
+      }))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getFiles])
+
   const clone = useCallback(async (url: string, token?: string) => {
     const fs = fsRef.current
     if (!fs) return
@@ -255,5 +285,5 @@ export function useGit(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return { state, clone, commit, push, pull, refresh }
+  return { state, initRepo, clone, commit, push, pull, refresh }
 }

@@ -242,6 +242,7 @@ export function PlaygroundLayout({ project, user }: Props) {
                     state={git.state}
                     userName={user.name ?? ""}
                     userEmail={user.email ?? ""}
+                    onInit={git.initRepo}
                     onClone={git.clone}
                     onCommit={git.commit}
                     onPush={git.push}
