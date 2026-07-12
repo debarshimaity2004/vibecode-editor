@@ -9,13 +9,15 @@ interface Props {
   savedFiles: Record<string, string>
   openFiles: string[]
   selectedFile: string | null
+  inlineEnabled: boolean
+  insertFnRef: React.RefObject<((code: string) => void) | null>
   onSelectFile: (path: string) => void
   onCloseFile: (path: string) => void
   onUpdateContent: (path: string, content: string) => void
 }
 
 export function EditorPanel({
-  files, savedFiles, openFiles, selectedFile,
+  files, savedFiles, openFiles, selectedFile, inlineEnabled, insertFnRef,
   onSelectFile, onCloseFile, onUpdateContent,
 }: Props) {
   return (
@@ -75,6 +77,8 @@ export function EditorPanel({
             <MonacoEditor
               path={selectedFile}
               value={files[selectedFile] ?? ""}
+              inlineEnabled={inlineEnabled}
+              insertFnRef={insertFnRef}
               onChange={(val) => onUpdateContent(selectedFile, val)}
             />
           </div>

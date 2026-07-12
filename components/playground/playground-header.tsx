@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { DashboardNav } from "@/components/dashboard-nav"
 import { renameProject } from "@/app/actions/projects"
-import { ChevronLeft, Play, Square, Sparkles, Loader2 } from "lucide-react"
+import { ChevronLeft, Play, Square, Sparkles, Zap, Download, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { WCStatus } from "@/hooks/use-web-container"
 
@@ -14,11 +14,16 @@ interface Props {
   project: { id: string; name: string }
   user: { name?: string | null; email?: string | null; image?: string | null }
   wcStatus: WCStatus
+  inlineEnabled: boolean
+  chatOpen: boolean
+  onInlineToggle: () => void
+  onChatToggle: () => void
+  onDownload: () => void
   onRun: () => void
   onStop: () => void
 }
 
-export function PlaygroundHeader({ project, user, wcStatus, onRun, onStop }: Props) {
+export function PlaygroundHeader({ project, user, wcStatus, inlineEnabled, chatOpen, onInlineToggle, onChatToggle, onDownload, onRun, onStop }: Props) {
   const isRunning = wcStatus === "running"
   const isLoading = wcStatus === "booting" || wcStatus === "installing" || wcStatus === "starting"
   const [name, setName] = useState(project.name)
@@ -57,13 +62,13 @@ export function PlaygroundHeader({ project, user, wcStatus, onRun, onStop }: Pro
               if (e.key === "Enter") handleNameCommit()
               if (e.key === "Escape") { setName(project.name); setEditing(false) }
             }}
-            className="text-sm font-medium bg-transparent border-b border-primary outline-none min-w-0 max-w-[200px]"
+            className="text-sm font-medium bg-transparent border-b border-primary outline-none min-w-0 max-w-50"
             autoFocus
           />
         ) : (
           <button
             onClick={() => setEditing(true)}
-            className="text-sm font-medium hover:text-muted-foreground transition-colors truncate max-w-[200px]"
+            className="text-sm font-medium hover:text-muted-foreground transition-colors truncate max-w-50"
             title="Click to rename"
           >
             {name}
@@ -76,12 +81,33 @@ export function PlaygroundHeader({ project, user, wcStatus, onRun, onStop }: Pro
         <Button
           size="sm"
           variant="ghost"
-          className="h-7 gap-1.5 text-xs text-muted-foreground"
-          disabled
-          title="AI autocomplete (Phase 10)"
+          className="h-7 w-7 text-muted-foreground"
+          onClick={onDownload}
+          title="Download project as ZIP"
+        >
+          <Download className="h-3.5 w-3.5" />
+        </Button>
+
+        <Button
+          size="sm"
+          variant={inlineEnabled ? "secondary" : "ghost"}
+          className={cn("h-7 gap-1.5 text-xs", !inlineEnabled && "text-muted-foreground")}
+          onClick={onInlineToggle}
+          title={inlineEnabled ? "Disable inline AI suggestions" : "Enable inline AI suggestions (Ctrl+Space)"}
+        >
+          <Zap className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Inline</span>
+        </Button>
+
+        <Button
+          size="sm"
+          variant={chatOpen ? "default" : "ghost"}
+          className={cn("h-7 gap-1.5 text-xs", !chatOpen && "text-muted-foreground")}
+          onClick={onChatToggle}
+          title={chatOpen ? "Close AI chat" : "Open AI chat"}
         >
           <Sparkles className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">AI</span>
+          <span className="hidden sm:inline">Chat</span>
         </Button>
 
         <Button

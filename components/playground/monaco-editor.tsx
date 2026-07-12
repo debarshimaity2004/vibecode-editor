@@ -28,17 +28,31 @@ function getLanguage(filename: string): string {
   return map[ext] ?? "plaintext"
 }
 
+// Module-level — provider is registered once; these survive component remounts (key changes)
+let inlineProviderRegistered = false
+const _inlineEnabledRef = { current: false }
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface Props {
   path: string
   value: string
+  inlineEnabled: boolean
   onChange: (value: string) => void
+  insertFnRef?: React.RefObject<((code: string) => void) | null>
 }
 
-export function MonacoEditor({ path, value, onChange }: Props) {
+export function MonacoEditor({ path, value, inlineEnabled, onChange, insertFnRef }: Props) {
   const { resolvedTheme } = useTheme()
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null)
+
+  // Keep module-level ref in sync so the registered provider closure always sees latest value
+  useEffect(() => { _inlineEnabledRef.current = inlineEnabled }, [inlineEnabled])
+
+  // Null out insert fn when this editor instance unmounts
+  useEffect(() => {
+    return () => { if (insertFnRef) insertFnRef.current = null }
+  }, [insertFnRef])
 
   // Keep editor value in sync when switching files
   useEffect(() => {
@@ -53,6 +67,19 @@ export function MonacoEditor({ path, value, onChange }: Props) {
 
   const handleMount: OnMount = (editor, monaco) => {
     editorRef.current = editor
+
+    // Expose insert-at-cursor to parent; updated on each remount so it targets the live editor
+    if (insertFnRef) {
+      insertFnRef.current = (code: string) => {
+        const pos = editor.getPosition()
+        if (!pos) return
+        editor.executeEdits("ai-insert", [{
+          range: new monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column),
+          text: code,
+        }])
+        editor.focus()
+      }
+    }
 
     // TypeScript/JavaScript compiler options
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
@@ -69,7 +96,54 @@ export function MonacoEditor({ path, value, onChange }: Props) {
       noSyntaxValidation: false,
     })
 
-    // Focus editor on mount
+    // Register inline completions provider once
+    if (!inlineProviderRegistered) {
+      inlineProviderRegistered = true
+      monaco.languages.registerInlineCompletionsProvider("*", {
+        provideInlineCompletions: async (
+          model: Monaco.editor.ITextModel,
+          position: Monaco.Position,
+          _context: Monaco.languages.InlineCompletionContext,
+          token: Monaco.CancellationToken,
+        ) => {
+          if (!_inlineEnabledRef.current) return { items: [] }
+
+          const offset = model.getOffsetAt(position)
+          const text = model.getValue()
+          const prefix = text.slice(0, offset)
+          const suffix = text.slice(offset)
+
+          try {
+            const res = await fetch("/api/ai/complete", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                prefix,
+                suffix,
+                language: model.getLanguageId(),
+              }),
+              signal: AbortSignal.timeout(8000),
+            })
+            if (token.isCancellationRequested || !res.ok) return { items: [] }
+            const { completion } = await res.json() as { completion: string }
+            if (!completion) return { items: [] }
+            return {
+              items: [{
+                insertText: completion,
+                range: new monaco.Range(
+                  position.lineNumber, position.column,
+                  position.lineNumber, position.column,
+                ),
+              }],
+            }
+          } catch {
+            return { items: [] }
+          }
+        },
+        freeInlineCompletions: () => {},
+      })
+    }
+
     editor.focus()
   }
 
@@ -106,6 +180,7 @@ export function MonacoEditor({ path, value, onChange }: Props) {
           verticalScrollbarSize: 6,
           horizontalScrollbarSize: 6,
         },
+        inlineSuggest: { enabled: true },
       }}
     />
   )
