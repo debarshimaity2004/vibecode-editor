@@ -114,6 +114,7 @@ export function MonacoEditor({ path, value, inlineEnabled, onChange, insertFnRef
           const suffix = text.slice(offset)
 
           try {
+            const _t0 = performance.now()
             const res = await fetch("/api/ai/complete", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -125,6 +126,13 @@ export function MonacoEditor({ path, value, inlineEnabled, onChange, insertFnRef
               signal: AbortSignal.timeout(8000),
             })
             if (token.isCancellationRequested || !res.ok) return { items: [] }
+            if (process.env.NEXT_PUBLIC_BENCH_MODE) {
+              const ttftMs = Math.round(performance.now() - _t0)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              ;(window as any).__BENCH_AI__ = (window as any).__BENCH_AI__ ?? []
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              ;(window as any).__BENCH_AI__.push({ ttftMs, ts: Date.now() })
+            }
             const { completion } = await res.json() as { completion: string }
             if (!completion) return { items: [] }
             return {

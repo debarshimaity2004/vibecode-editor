@@ -67,6 +67,9 @@ export function useWebContainer() {
     setPreviewUrl(null)
     setStatus("booting")
 
+    // Bench mode: record wall-clock time from boot-start to server-ready
+    const _t0 = performance.now()
+
     try {
       const wc = await bootOnce()
       wcRef.current = wc
@@ -94,6 +97,13 @@ export function useWebContainer() {
       pipeToCallback(dev.output, write)
 
       wc.on("server-ready", (_port, url) => {
+        if (process.env.NEXT_PUBLIC_BENCH_MODE) {
+          const durationMs = Math.round(performance.now() - _t0)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(window as any).__BENCH_WC__ = (window as any).__BENCH_WC__ ?? []
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(window as any).__BENCH_WC__.push({ durationMs, ts: Date.now() })
+        }
         write(`\r\n\x1b[32m✔ Server ready → ${url}\x1b[0m\r\n`)
         setPreviewUrl(url)
         setStatus("running")

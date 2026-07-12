@@ -44,3 +44,7 @@ next-env.d.ts
 /lib/generated/prisma
 
 CLAUDE.md
+
+# benchmarks
+benchmarks/.auth/
+benchmarks/results/project-urls.json

@@ -155,6 +155,7 @@ export function useGit(
     const fs = fsRef.current
     if (!fs) return
     setState((s) => ({ ...s, loading: true, error: null }))
+    const _t0 = performance.now()
     try {
       // Wipe existing FS data for a fresh clone
       const existing = await fs.promises.readdir("/").catch(() => []) as string[]
@@ -173,6 +174,14 @@ export function useGit(
         onAuth: token ? () => ({ username: token, password: "" }) : undefined,
         onMessage: (msg) => console.log("[git]", msg),
       })
+
+      if (process.env.NEXT_PUBLIC_BENCH_MODE) {
+        const durationMs = Math.round(performance.now() - _t0)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(window as any).__BENCH_GIT__ = (window as any).__BENCH_GIT__ ?? []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(window as any).__BENCH_GIT__.push({ op: "clone", durationMs, ts: Date.now() })
+      }
 
       const files = await readAllFiles(fs)
       await onFilesLoaded(files)
@@ -201,6 +210,7 @@ export function useGit(
     const fs = fsRef.current
     if (!fs) return
     setState((s) => ({ ...s, loading: true, error: null }))
+    const _t0 = performance.now()
     try {
       // Sync editor → FS
       const files = getFiles()
@@ -219,6 +229,13 @@ export function useGit(
         message,
         author: { name: authorName, email: authorEmail },
       })
+      if (process.env.NEXT_PUBLIC_BENCH_MODE) {
+        const durationMs = Math.round(performance.now() - _t0)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(window as any).__BENCH_GIT__ = (window as any).__BENCH_GIT__ ?? []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(window as any).__BENCH_GIT__.push({ op: "commit", durationMs, ts: Date.now() })
+      }
       await refreshStatus(fs)
       setState((s) => ({ ...s, loading: false }))
     } catch (err) {
@@ -235,6 +252,7 @@ export function useGit(
     const fs = fsRef.current
     if (!fs) return
     setState((s) => ({ ...s, loading: true, error: null }))
+    const _t0 = performance.now()
     try {
       await git.push({
         fs,
@@ -243,6 +261,13 @@ export function useGit(
         corsProxy: "/api/git",
         onAuth: () => ({ username: token, password: "" }),
       })
+      if (process.env.NEXT_PUBLIC_BENCH_MODE) {
+        const durationMs = Math.round(performance.now() - _t0)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(window as any).__BENCH_GIT__ = (window as any).__BENCH_GIT__ ?? []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(window as any).__BENCH_GIT__.push({ op: "push", durationMs, ts: Date.now() })
+      }
       setState((s) => ({ ...s, loading: false }))
     } catch (err) {
       setState((s) => ({
