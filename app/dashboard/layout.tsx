@@ -23,7 +23,7 @@ export default async function DashboardLayout({
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <DashboardNav user={session.user} />
+            <DashboardNav user={session.user ?? {}} />
           </div>
         </div>
       </header>
