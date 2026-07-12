@@ -1,0 +1,250 @@
+{
+  "runAt": "2026-07-12T13:20:40.753Z",
+  "url": "https://vibecode-editor-debarshi.vercel.app",
+  "machine": "Windows_NT x64 / Intel(R) Core(TM) i5-1035G1 CPU @ 1.00GHz",
+  "browser": "Playwright Chromium (headless)",
+  "wc": [
+    {
+      "template": "React + Vite",
+      "run": 1,
+      "durationMs": 41350,
+      "ts": 1783862484996
+    },
+    {
+      "template": "React + Vite",
+      "run": 2,
+      "durationMs": 31304,
+      "ts": 1783862519703
+    },
+    {
+      "template": "React + Vite",
+      "run": 3,
+      "durationMs": 29901,
+      "ts": 1783862552952
+    },
+    {
+      "template": "React + Vite",
+      "run": 4,
+      "durationMs": 33969,
+      "ts": 1783862590228
+    },
+    {
+      "template": "React + Vite",
+      "run": 5,
+      "durationMs": 26783,
+      "ts": 1783862620344
+    },
+    {
+      "template": "React + Vite",
+      "run": 6,
+      "durationMs": 33553,
+      "ts": 1783862657106
+    },
+    {
+      "template": "React + Vite",
+      "run": 7,
+      "durationMs": 29980,
+      "ts": 1783862690392
+    },
+    {
+      "template": "React + Vite",
+      "run": 8,
+      "durationMs": 30235,
+      "ts": 1783862723855
+    },
+    {
+      "template": "React + Vite",
+      "run": 9,
+      "durationMs": 29226,
+      "ts": 1783862756355
+    },
+    {
+      "template": "React + Vite",
+      "run": 10,
+      "durationMs": 45730,
+      "ts": 1783862805401
+    },
+    {
+      "template": "Vue + Vite",
+      "run": 1,
+      "durationMs": 48549,
+      "ts": 1783862857565
+    },
+    {
+      "template": "Vue + Vite",
+      "run": 2,
+      "durationMs": 40636,
+      "ts": 1783862901560
+    },
+    {
+      "template": "Vue + Vite",
+      "run": 3,
+      "durationMs": 45964,
+      "ts": 1783862950952
+    },
+    {
+      "template": "Vue + Vite",
+      "run": 4,
+      "durationMs": 45583,
+      "ts": 1783862999953
+    },
+    {
+      "template": "Vue + Vite",
+      "run": 5,
+      "durationMs": 45782,
+      "ts": 1783863049208
+    },
+    {
+      "template": "Vue + Vite",
+      "run": 6,
+      "durationMs": 46297,
+      "ts": 1783863098864
+    },
+    {
+      "template": "Vue + Vite",
+      "run": 7,
+      "durationMs": 40597,
+      "ts": 1783863142785
+    },
+    {
+      "template": "Vue + Vite",
+      "run": 8,
+      "durationMs": 53365,
+      "ts": 1783863199781
+    },
+    {
+      "template": "Vue + Vite",
+      "run": 9,
+      "durationMs": 43170,
+      "ts": 1783863246431
+    },
+    {
+      "template": "Vue + Vite",
+      "run": 10,
+      "durationMs": 41881,
+      "ts": 1783863291680
+    },
+    {
+      "template": "Express",
+      "run": 1,
+      "durationMs": 26697,
+      "ts": 1783863322211
+    },
+    {
+      "template": "Express",
+      "run": 2,
+      "durationMs": 21901,
+      "ts": 1783863347569
+    },
+    {
+      "template": "Express",
+      "run": 3,
+      "durationMs": 22563,
+      "ts": 1783863373508
+    },
+    {
+      "template": "Express",
+      "run": 4,
+      "durationMs": 21433,
+      "ts": 1783863398453
+    },
+    {
+      "template": "Express",
+      "run": 5,
+      "durationMs": 18472,
+      "ts": 1783863420197
+    },
+    {
+      "template": "Express",
+      "run": 6,
+      "durationMs": 22047,
+      "ts": 1783863445738
+    },
+    {
+      "template": "Express",
+      "run": 7,
+      "durationMs": 22501,
+      "ts": 1783863471696
+    },
+    {
+      "template": "Express",
+      "run": 8,
+      "durationMs": 22041,
+      "ts": 1783863497135
+    },
+    {
+      "template": "Express",
+      "run": 9,
+      "durationMs": 21940,
+      "ts": 1783863522459
+    },
+    {
+      "template": "Express",
+      "run": 10,
+      "durationMs": 20845,
+      "ts": 1783863546637
+    },
+    {
+      "template": "Next.js",
+      "run": 1,
+      "durationMs": 85765,
+      "ts": 1783863635934
+    },
+    {
+      "template": "Next.js",
+      "run": 2,
+      "durationMs": 59047,
+      "ts": 1783863698364
+    },
+    {
+      "template": "Next.js",
+      "run": 3,
+      "durationMs": 67906,
+      "ts": 1783863769807
+    },
+    {
+      "template": "Next.js",
+      "run": 4,
+      "durationMs": 65830,
+      "ts": 1783863839176
+    },
+    {
+      "template": "Next.js",
+      "run": 5,
+      "durationMs": 58788,
+      "ts": 1783863901447
+    },
+    {
+      "template": "Next.js",
+      "run": 6,
+      "durationMs": 67207,
+      "ts": 1783863972096
+    },
+    {
+      "template": "Next.js",
+      "run": 7,
+      "durationMs": 57524,
+      "ts": 1783864032946
+    },
+    {
+      "template": "Next.js",
+      "run": 8,
+      "durationMs": 61593,
+      "ts": 1783864097886
+    },
+    {
+      "template": "Next.js",
+      "run": 9,
+      "durationMs": 61318,
+      "ts": 1783864162506
+    },
+    {
+      "template": "Next.js",
+      "run": 10,
+      "durationMs": 63566,
+      "ts": 1783864229655
+    }
+  ],
+  "ai": [],
+  "git": []
+}

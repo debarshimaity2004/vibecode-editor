@@ -10,6 +10,7 @@
     "seed": "npx tsx prisma/seed.ts",
     "bench": "npx tsx benchmarks/run.ts",
     "bench:login": "npx tsx benchmarks/run.ts --login",
+    "bench:save-session": "npx tsx benchmarks/save-session.ts",
     "bench:report": "npx tsx benchmarks/report.ts"
   },
   "prisma": {

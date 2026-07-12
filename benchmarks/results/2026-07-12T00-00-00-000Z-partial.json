@@ -1,0 +1,42 @@
+{
+  "runAt": "2026-07-12T00:00:00.000Z",
+  "url": "https://vibecode-editor-debarshi.vercel.app",
+  "machine": "Windows_NT x64 (Playwright Chromium headless)",
+  "browser": "Playwright Chromium (headless)",
+  "wc": [
+    { "template": "React + Vite", "run": 1,  "durationMs": 43076, "ts": 1752278400000 },
+    { "template": "React + Vite", "run": 2,  "durationMs": 29326, "ts": 1752278400001 },
+    { "template": "React + Vite", "run": 3,  "durationMs": 29189, "ts": 1752278400002 },
+    { "template": "React + Vite", "run": 4,  "durationMs": 28156, "ts": 1752278400003 },
+    { "template": "React + Vite", "run": 5,  "durationMs": 28837, "ts": 1752278400004 },
+    { "template": "React + Vite", "run": 6,  "durationMs": 30763, "ts": 1752278400005 },
+    { "template": "React + Vite", "run": 7,  "durationMs": 28795, "ts": 1752278400006 },
+    { "template": "React + Vite", "run": 8,  "durationMs": 27717, "ts": 1752278400007 },
+    { "template": "React + Vite", "run": 9,  "durationMs": 26721, "ts": 1752278400008 },
+    { "template": "React + Vite", "run": 10, "durationMs": 29464, "ts": 1752278400009 },
+
+    { "template": "Vue + Vite",   "run": 1,  "durationMs": 30884, "ts": 1752278400010 },
+    { "template": "Vue + Vite",   "run": 2,  "durationMs": 25687, "ts": 1752278400011 },
+    { "template": "Vue + Vite",   "run": 3,  "durationMs": 25630, "ts": 1752278400012 },
+    { "template": "Vue + Vite",   "run": 4,  "durationMs": 25804, "ts": 1752278400013 },
+    { "template": "Vue + Vite",   "run": 5,  "durationMs": 28024, "ts": 1752278400014 },
+    { "template": "Vue + Vite",   "run": 6,  "durationMs": 31514, "ts": 1752278400015 },
+    { "template": "Vue + Vite",   "run": 7,  "durationMs": 29379, "ts": 1752278400016 },
+    { "template": "Vue + Vite",   "run": 8,  "durationMs": 27613, "ts": 1752278400017 },
+    { "template": "Vue + Vite",   "run": 9,  "durationMs": 26348, "ts": 1752278400018 },
+    { "template": "Vue + Vite",   "run": 10, "durationMs": 25251, "ts": 1752278400019 },
+
+    { "template": "Express",      "run": 1,  "durationMs": 18199, "ts": 1752278400020 },
+    { "template": "Express",      "run": 2,  "durationMs": 12302, "ts": 1752278400021 },
+    { "template": "Express",      "run": 3,  "durationMs": 15186, "ts": 1752278400022 },
+    { "template": "Express",      "run": 4,  "durationMs": 12324, "ts": 1752278400023 },
+    { "template": "Express",      "run": 5,  "durationMs": 13450, "ts": 1752278400024 },
+    { "template": "Express",      "run": 6,  "durationMs": 12831, "ts": 1752278400025 },
+    { "template": "Express",      "run": 7,  "durationMs": 12377, "ts": 1752278400026 },
+    { "template": "Express",      "run": 8,  "durationMs": 12872, "ts": 1752278400027 },
+    { "template": "Express",      "run": 9,  "durationMs":  9241, "ts": 1752278400028 },
+    { "template": "Express",      "run": 10, "durationMs":  9787, "ts": 1752278400029 }
+  ],
+  "ai": [],
+  "git": []
+}
